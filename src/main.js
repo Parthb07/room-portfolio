@@ -1,60 +1,59 @@
 import './style.css'
-import javascriptLogo from './assets/javascript.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import { setupCounter } from './counter.js'
+import { initScene } from './scene.js'
+import { initHotspots, clearActiveZone } from './hotspots.js'
+import { initPanel, openPanel } from './panel.js'
+import { initToggle } from './toggle.js'
+import { initZoomReset } from './zoomReset.js'
+import { initNav } from './nav.js'
+import { fetchObjects } from './supabase.js'
 
-document.querySelector('#app').innerHTML = `
-<section id="center">
-  <div class="hero">
-    <img src="${heroImg}" class="base" width="170" height="179">
-    <img src="${javascriptLogo}" class="framework" alt="JavaScript logo"/>
-    <img src="${viteLogo}" class="vite" alt="Vite logo" />
-  </div>
-  <div>
-    <h1>Get started</h1>
-    <p>Edit <code>src/main.js</code> and save to test <code>HMR</code></p>
-  </div>
-  <button id="counter" type="button" class="counter"></button>
-</section>
+const app = document.querySelector('#app')
 
-<div class="ticks"></div>
+// #stage holds everything except the panel — scene, nav, HUD — so it can
+// shrink as one unit (via the "panel-open" class below) when the panel
+// opens, and everything inside reflows off #stage's own real size rather
+// than the full viewport. See the #stage rule in style.css.
+const stage = document.createElement('div')
+stage.id = 'stage'
+app.append(stage)
 
-<section id="next-steps">
-  <div id="docs">
-    <svg class="icon" role="presentation" aria-hidden="true"><use href="/icons.svg#documentation-icon"></use></svg>
-    <h2>Documentation</h2>
-    <p>Your questions, answered</p>
-    <ul>
-      <li>
-        <a href="https://vite.dev/" target="_blank">
-          <img class="logo" src="${viteLogo}" alt="" />
-          Explore Vite
-        </a>
-      </li>
-      <li>
-        <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank">
-          <img class="button-icon" src="${javascriptLogo}" alt="">
-          Learn more
-        </a>
-      </li>
-    </ul>
-  </div>
-  <div id="social">
-    <svg class="icon" role="presentation" aria-hidden="true"><use href="/icons.svg#social-icon"></use></svg>
-    <h2>Connect with us</h2>
-    <p>Join the Vite community</p>
-    <ul>
-      <li><a href="https://github.com/vitejs/vite" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#github-icon"></use></svg>GitHub</a></li>
-      <li><a href="https://chat.vite.dev/" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#discord-icon"></use></svg>Discord</a></li>
-      <li><a href="https://x.com/vite_js" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#x-icon"></use></svg>X.com</a></li>
-      <li><a href="https://bsky.app/profile/vite.dev" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#bluesky-icon"></use></svg>Bluesky</a></li>
-    </ul>
-  </div>
-</section>
+const { world, resetZoom } = initScene(stage)
+const hotspotLayer = initHotspots(world, handleZoneClick)
+const panel = initPanel(app)
+initNav(stage)
 
-<div class="ticks"></div>
-<section id="spacer"></section>
-`
+// Bottom-center HUD row: day/night toggle + reset-zoom button.
+const hud = document.createElement('div')
+hud.id = 'hud'
+hud.className = 'absolute bottom-6 left-1/2 z-20 flex -translate-x-1/2 items-center gap-3'
+stage.append(hud)
+initToggle(hud)
+initZoomReset(hud, resetZoom)
 
-setupCounter(document.querySelector('#counter'))
+// #stage's own resize (see its CSS transition) is what actually reflows
+// the scene/nav/HUD — this just tells it when to animate open vs closed,
+// and drops the dot's active/glow state once the panel is gone.
+panel.addEventListener('panel:open', () => stage.classList.add('panel-open'))
+panel.addEventListener('panel:close', () => {
+  stage.classList.remove('panel-open')
+  clearActiveZone(hotspotLayer)
+})
+
+let objectsById = {}
+
+fetchObjects()
+  .then((data) => {
+    objectsById = data
+  })
+  .catch((error) => {
+    console.error('Failed to load objects from Supabase', error)
+  })
+
+function handleZoneClick(zone) {
+  const row = objectsById[zone.id]
+  if (!row) {
+    console.warn(`No Supabase row found for zone "${zone.id}"`)
+    return
+  }
+  openPanel(row)
+}
