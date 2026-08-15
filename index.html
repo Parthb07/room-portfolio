@@ -4,9 +4,26 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@160..700&display=swap"
+      rel="stylesheet"
+    />
     <title>Parth Bhandari — Room</title>
   </head>
   <body>
+    <!-- Applies the stored theme before anything paints, so there's no
+         flash of the wrong theme while main.js's module script loads.
+         The key here must match STORAGE_KEY in src/theme.js by hand — a
+         plain <script> can't import from a module. -->
+    <script>
+      try {
+        if (localStorage.getItem('room-portfolio:theme') === 'night') {
+          document.body.classList.add('night')
+        }
+      } catch (e) {}
+    </script>
     <div id="app"></div>
     <script type="module" src="/src/main.js"></script>
   </body>

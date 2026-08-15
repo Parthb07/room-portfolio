@@ -9,13 +9,19 @@ export function initZoomReset(root, onReset) {
   button.setAttribute('aria-label', 'Reset zoom')
   button.className = [
     'flex h-9 w-9 items-center justify-center rounded-full',
-    'border border-[var(--ui-border)] bg-[var(--ui-bg)] text-[var(--ui-text)]',
-    'shadow-[var(--ui-shadow)] backdrop-blur-sm',
+    'border border-[var(--ui-border)] bg-[var(--glass-bg)]',
+    'shadow-[var(--ui-shadow)] backdrop-blur-md',
     // Frosted white tint on hover (not the near-transparent --ui-border) so
     // the icon stays legible against a bright background image in light mode.
     'transition-colors duration-200 hover:bg-[var(--ui-hover-bg)] hover:backdrop-blur-md',
   ].join(' ')
-  button.innerHTML = resetIcon()
+
+  // White "knob" housing the icon — same accent language as the day/night
+  // toggle's knob, so the two HUD buttons read as one family.
+  const iconWrap = document.createElement('span')
+  iconWrap.className = 'flex h-6 w-6 items-center justify-center rounded-full bg-white text-gray-800'
+  iconWrap.innerHTML = resetIcon()
+  button.append(iconWrap)
 
   button.addEventListener('click', onReset)
 

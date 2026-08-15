@@ -1,35 +1,49 @@
 // Day/night pill toggle. Lives as a child of main.js's bottom-center HUD
 // row (alongside the reset-zoom button) rather than positioning itself.
 // Toggles body.night — style.css and scene.js both react to that class.
+//
+// The class may already be on <body> when this runs (applied by the inline
+// script in index.html, from the stored preference) — this reads that
+// instead of assuming day, so the toggle's own visual state matches.
+
+import { saveTheme } from './theme.js'
 
 export function initToggle(root) {
   const toggle = document.createElement('button')
   toggle.id = 'day-night-toggle'
   toggle.type = 'button'
   toggle.setAttribute('aria-label', 'Toggle day and night')
-  toggle.setAttribute('aria-pressed', 'false')
-  toggle.className = [
-    'flex h-9 w-16 items-center rounded-full p-1',
-    'border border-[var(--ui-border)] bg-[var(--ui-bg)] shadow-[var(--ui-shadow)] backdrop-blur-sm',
-  ].join(' ')
 
   const knob = document.createElement('span')
   knob.className = [
     'flex h-7 w-7 items-center justify-center rounded-full',
-    'bg-[var(--ui-accent)] text-white',
+    // White accent (not the theme purple) — matches the hotspot dots and
+    // the frosted white hover used elsewhere in the HUD.
+    'bg-white text-gray-800',
     'transition-transform duration-300 ease-out',
   ].join(' ')
-  knob.innerHTML = sunIcon()
+
+  toggle.className = [
+    'flex h-9 w-16 items-center rounded-full p-1',
+    'border border-[var(--ui-border)] bg-[var(--glass-bg)] shadow-[var(--ui-shadow)] backdrop-blur-md',
+  ].join(' ')
+
+  applyState(document.body.classList.contains('night'))
 
   toggle.append(knob)
   root.append(toggle)
 
   toggle.addEventListener('click', () => {
     const isNight = document.body.classList.toggle('night')
+    applyState(isNight)
+    saveTheme(isNight)
+  })
+
+  function applyState(isNight) {
     toggle.setAttribute('aria-pressed', String(isNight))
     knob.style.transform = isNight ? 'translateX(28px)' : 'translateX(0)'
     knob.innerHTML = isNight ? moonIcon() : sunIcon()
-  })
+  }
 
   return toggle
 }
