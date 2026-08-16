@@ -12,7 +12,7 @@ export function initBuildNotice(root) {
   ].join(' ')
   notice.innerHTML = `
     ${warningIcon()}
-    <span>This site is still under construction — some parts may be incomplete.</span>
+    <span>This page is still being built. Some parts may be incomplete</span>
   `
   root.append(notice)
   return notice

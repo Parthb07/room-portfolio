@@ -10,6 +10,13 @@
 // size, so it stays correct at any zoom level instead of guessing a fixed
 // pixel offset.
 
+// Logical canvas size — every pan/zoom/clamp calculation and every hotspot
+// coordinate (hotspots.js) is authored against this, independent of the
+// actual room-day/room-night file resolution. The browser just scales
+// whatever pixels those files really have to fill this box, so bumping
+// their native resolution (e.g. re-rendering sharper WebP exports) never
+// requires touching this or re-tracing hotspots — only the reverse
+// (changing this) would.
 export const IMAGE_WIDTH = 5000
 export const IMAGE_HEIGHT = 5000
 
@@ -45,7 +52,7 @@ export function initScene(container) {
   const dayImg = document.createElement('img')
   dayImg.id = 'room-day'
   dayImg.className = 'scene-layer'
-  dayImg.src = '/room-day.png'
+  dayImg.src = '/room-day.webp'
   dayImg.width = IMAGE_WIDTH
   dayImg.height = IMAGE_HEIGHT
   dayImg.alt = ''
@@ -54,7 +61,7 @@ export function initScene(container) {
   const nightImg = document.createElement('img')
   nightImg.id = 'room-night'
   nightImg.className = 'scene-layer'
-  nightImg.src = '/room-night.png'
+  nightImg.src = '/room-night.webp'
   nightImg.width = IMAGE_WIDTH
   nightImg.height = IMAGE_HEIGHT
   nightImg.alt = ''
