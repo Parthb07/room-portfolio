@@ -289,6 +289,27 @@ body.night #side-nav button.nav-active {
   transform: rotate(180deg);
 }
 
+/* Build notice: same grid 0fr/1fr collapse trick as .exp-collapse above,
+   just a single region instead of two swapping ones. */
+.notice-collapse {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.35s ease;
+}
+.notice-collapse > div {
+  overflow: hidden;
+  min-height: 0;
+}
+#build-notice.expanded .notice-collapse {
+  grid-template-rows: 1fr;
+}
+.notice-chevron {
+  transition: transform 0.3s ease;
+}
+#build-notice.expanded .notice-chevron {
+  transform: rotate(180deg);
+}
+
 /* Gallery page: a staggered/masonry layout via CSS multi-column — each
    tile stacks its media at natural aspect ratio (no fixed height), and
    `break-inside: avoid` keeps a tile from being split across two columns,

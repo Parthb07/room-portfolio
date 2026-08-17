@@ -67,6 +67,17 @@ export async function fetchHobbies() {
   return data
 }
 
+// Fetches the "upcoming changes" list shown when the build notice (bottom
+// left) is expanded, ordered for display.
+export async function fetchUpcomingChanges() {
+  const { data, error } = await supabase
+    .from('upcoming_changes')
+    .select('*')
+    .order('sort_order', { ascending: true })
+  if (error) throw error
+  return data
+}
+
 // Fetches the gallery grid's media rows (image or video, each just a
 // public URL + optional caption) — see gallery-page.js. `url` normally
 // points at a file in the `media` storage bucket, but any public URL
